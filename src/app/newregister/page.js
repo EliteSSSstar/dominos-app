@@ -97,7 +97,7 @@
 
 'use client';
 
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Avatar, Button, TextField, FormControlLabel,
   Checkbox, Link, Container, Box
@@ -112,11 +112,19 @@ export default function Home() {
 
     let email = data.get('email');
     let pass = data.get('pass');
+    let tel = data.get('tel');
+    let address = data.get('address');
+    let email2 = data.get('email2');
+    let pass2 = data.get('pass2');
 
     console.log("Sent email: " + email);
     console.log("Sent pass: " + pass);
+    console.log("Tel: " + tel);
+    console.log("Address: " + address);
+    console.log("Confirm Email: " + email2);
+    console.log("Confirm Password: " + pass2);
 
-    runDBCallAsync(`http://localhost:3000/api/login?email=${email}&pass=${pass}`);
+    runDBCallAsync(`http://localhost:3000/api/newregister?email=${email}&pass=${pass}&tel=${tel}&address=${address}&email2=${email2}&pass2=${pass2}`);
   };
 
   async function runDBCallAsync(url) {
@@ -155,6 +163,45 @@ export default function Home() {
             id="pass"
             autoComplete="current-password"
           />
+
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="tel"
+            label="Telephone"
+            name="tel"
+            autoComplete="tel"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="address"
+            label="Address"
+            name="address"
+            autoComplete="street-address"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email2"
+            label="Confirm Email"
+            name="email2"
+            autoComplete="email"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="pass2"
+            label="Confirm Password"
+            name="pass2"
+            autoComplete="new-password"
+          />
+
+
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
