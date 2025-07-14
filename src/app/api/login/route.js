@@ -1,58 +1,67 @@
 import { MongoClient } from 'mongodb';
 
-const url = 'mongodb://root:example@localhost:27017';  // your MongoDB connection string
+// Your MongoDB connection string
+const url = 'mongodb+srv://root:myPassword123@cluster0.ijxgp6f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(url);
 
-export async function GET(req) {
-
-  // Make a note we are on
-  // the api. This goes to the console.
+export async function POST(req) {
+  // Log that the API route was hit
   console.log("in the api page");
 
-  // get the values
-  // that were sent across to us.
-  const { searchParams } = new URL(req.url);
-  const email = searchParams.get('email');
-  const pass = searchParams.get('pass');
+  // Parse the JSON body from the POST request
+  // This is where email and password come from now, NOT from query params
+  const { email, pass } = await req.json();
 
+  // Log received credentials (for debugging; remove in production)
   console.log(email);
   console.log(pass);
 
-  const dbName = 'dominosapp'; // database name
+  const dbName = 'dominosapp'; // Name of your database
 
-  // database call goes here
   try {
+    // Connect to MongoDB server
     await client.connect();
     console.log('Connected successfully to server');
 
+    // Select the database and collection
     const db = client.db(dbName);
-    const collection = db.collection('login'); // collection name
+    const collection = db.collection('login'); // Collection containing login data
 
-    // Find user by email
-    const findResult = await collection.findOne({ username: email });
+    // Query for user matching the given email and password
+    const user = await collection.findOne({ username: email, pass: pass });
 
-    let valid = false;
-    if (findResult && findResult.pass === pass) {
-      valid = true;
+    // Check if a user was found
+    const valid = !!user;
+
+    if (valid) {
       console.log("login valid");
     } else {
-      valid = false;
       console.log("login invalid");
     }
 
-    // at the end of the process we need to send something back.
-    return new Response(JSON.stringify({ data: "" + valid + "" }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Respond with JSON indicating login validity
+    return new Response(
+      JSON.stringify({ data: valid ? "valid" : "invalid" }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
 
   } catch (error) {
+    // Log any error that occurs during connection or query
     console.error("MongoDB connection error:", error);
-    return new Response(JSON.stringify({ data: "error" }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+
+    // Respond with error message and status code 500 (internal server error)
+    return new Response(
+      JSON.stringify({ success: false, error: "Database error" }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   } finally {
+    // Always close the MongoDB client after request finishes
     await client.close();
   }
 }
