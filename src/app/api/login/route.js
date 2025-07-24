@@ -1,22 +1,21 @@
 import { MongoClient } from 'mongodb';
 
-// Your MongoDB connection string
+// MongoDB connection string
 const url = 'mongodb+srv://root:myPassword123@cluster0.ijxgp6f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(url);
 
 export async function POST(req) {
   // Log that the API route was hit
-  console.log("in the api page");
+  console.log("in the login API");
 
   // Parse the JSON body from the POST request
-  // This is where email and password come from now, NOT from query params
   const { email, pass } = await req.json();
 
-  // Log received credentials (for debugging; remove in production)
+  // Log received credentials 
   console.log(email);
   console.log(pass);
 
-  const dbName = 'dominosapp'; // Name of your database
+  const dbName = 'dominosapp'; // Name of  database
 
   try {
     // Connect to MongoDB server
@@ -25,10 +24,10 @@ export async function POST(req) {
 
     // Select the database and collection
     const db = client.db(dbName);
-    const collection = db.collection('login'); // Collection containing login data
+    const collection = db.collection('users'); // Changed to 'users' collection to match registration
 
     // Query for user matching the given email and password
-    const user = await collection.findOne({ username: email, pass: pass });
+    const user = await collection.findOne({ email, pass });
 
     // Check if a user was found
     const valid = !!user;
@@ -39,9 +38,12 @@ export async function POST(req) {
       console.log("login invalid");
     }
 
-    // Respond with JSON indicating login validity
+    // Respond with JSON indicating login validity and user role (if valid)
     return new Response(
-      JSON.stringify({ data: valid ? "valid" : "invalid" }),
+      JSON.stringify({
+        data: valid ? "valid" : "invalid",
+        role: valid ? user.role : null  // Send back user role if login is valid
+      }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' }

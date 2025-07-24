@@ -46,26 +46,26 @@ export default function Page() {
   if (!data || !weather) return <p>Loading...</p>;
 
   // Add to cart function
-  function putInCart(pname) {
+  function putInCart(pname, price) {
     console.log("putting in cart: " + pname);
-    fetch(`http://localhost:3000/api/putInCart?pname=${pname}`);
+    fetch(`http://localhost:3000/api/putInCart?pname=${pname}&price=${price}`);
   }
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ flexGrow: 1 }}>
         {/* Header / AppBar */}
-        <AppBar position="static">
+        <AppBar position="static" sx={{ backgroundColor: 'red'}}>
           <Toolbar>
             <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }}>
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              My Dashboard
+              Dominosapp
             </Typography>
             {/*<Button color="inherit" onClick={() => router.push('/')}>Home</Button>*/}
-            <Button color="inherit" onClick={() => router.push('/login')}>Login</Button>
-            <Button color="inherit" onClick={() => router.push('/dashboard')}>Dashboard</Button>
+            <Button color="inherit" onClick={() => router.push('/login')}>Logout</Button>
+            <Button color="inherit" onClick={() => router.push('/cart')}>Cart</Button>
           </Toolbar>
         </AppBar>
 
@@ -102,7 +102,7 @@ export default function Page() {
               <Button
                 variant="outlined"
                 sx={{ mt: 1 }}
-                onClick={() => putInCart(item.pname)}
+                onClick={() => putInCart(item.pname, item.price)}
               >
                 Add to cart
               </Button>

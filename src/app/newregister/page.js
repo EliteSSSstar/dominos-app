@@ -1,147 +1,64 @@
-// import Image from "next/image";
-// import styles from "./page.module.css";
-
-// export default function Home() {
-//   return (
-//     <div className={styles.page}>
-//       <main className={styles.main}>
-//         <Image
-//           className={styles.logo}
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={180}
-//           height={38}
-//           priority
-//         />
-//         <ol>
-//           <li>
-//             Get started by editing <code>src/app/page.js</code>.
-//           </li>
-//           <li>Save and see your changes instantly.</li>
-//         </ol>
-
-//         <div className={styles.ctas}>
-//           <a
-//             className={styles.primary}
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className={styles.logo}
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={20}
-//               height={20}
-//             />
-//             Deploy now
-//           </a>
-//           <a
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//             className={styles.secondary}
-//           >
-//             Read our docs
-//           </a>
-//         </div>
-//       </main>
-//       <footer className={styles.footer}>
-//         <a
-//           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/file.svg"
-//             alt="File icon"
-//             width={16}
-//             height={16}
-//           />
-//           Learn
-//         </a>
-//         <a
-//           href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/window.svg"
-//             alt="Window icon"
-//             width={16}
-//             height={16}
-//           />
-//           Examples
-//         </a>
-//         <a
-//           href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/globe.svg"
-//             alt="Globe icon"
-//             width={16}
-//             height={16}
-//           />
-//           Go to nextjs.org →
-//         </a>
-//       </footer>
-//     </div>
-//   );
-// }
 
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  Avatar, Button, TextField, FormControlLabel,
-  Checkbox, Link, Container, Box
+  Container,
+  Box,
+  TextField,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  Typography
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+export default function NewRegisterPage() {
+  const router = useRouter();
 
-  const handleSubmit = (event) => {
-    console.log("handling submit");
-    event.preventDefault();
+  // Handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form behavior
     const data = new FormData(event.currentTarget);
 
-    let email = data.get('email');
-    let pass = data.get('pass');
-    let tel = data.get('tel');
-    let address = data.get('address');
-    let email2 = data.get('email2');
-    let pass2 = data.get('pass2');
+    // Collect form fields
+    const email = data.get('email');
+    const pass = data.get('pass');
+    const tel = data.get('tel');
+    const address = data.get('address');
+    const email2 = data.get('email2');
+    const pass2 = data.get('pass2');
 
-    console.log("Sent email: " + email);
-    console.log("Sent pass: " + pass);
-    console.log("Tel: " + tel);
-    console.log("Address: " + address);
-    console.log("Confirm Email: " + email2);
-    console.log("Confirm Password: " + pass2);
+    console.log("Registering user:", { email, pass, tel, address, email2, pass2 });
 
-    runDBCallAsync(`http://localhost:3000/api/newregister?email=${email}&pass=${pass}&tel=${tel}&address=${address}&email2=${email2}&pass2=${pass2}`);
-  };
+    // Make call to API
+    try {
+      const res = await fetch(
+        `/api/newregister?email=${email}&pass=${pass}&tel=${tel}&address=${address}&email2=${email2}&pass2=${pass2}`
+      );
+      const json = await res.json();
 
-  async function runDBCallAsync(url) {
-    const res = await fetch(url);
-    const data = await res.json();
+      if (json.data === "valid") {
+        alert("Registration successful!");
+        router.push('/login'); // Redirect to login page
+      } else {
+        alert("Registration failed: " + json.message);
+      }
 
-    if (data.data === "valid") {
-      console.log("login is valid!");
-    } else {
-      console.log("not valid");
+    } catch (err) {
+      console.error("Error calling registration API:", err);
+      alert("Error connecting to server.");
     }
-  }
+  };
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ height: '100vh' }}>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+      <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ width: '100%' }}>
+          <Typography variant="h4" gutterBottom align="center">Register</Typography>
+
+          {/* Email */}
           <TextField
             margin="normal"
             required
@@ -152,7 +69,8 @@ export default function Home() {
             autoComplete="email"
             autoFocus
           />
-          
+
+          {/* Password */}
           <TextField
             margin="normal"
             required
@@ -161,9 +79,10 @@ export default function Home() {
             label="Password"
             type="password"
             id="pass"
-            autoComplete="current-password"
+            autoComplete="new-password"
           />
 
+          {/* Telephone */}
           <TextField
             margin="normal"
             required
@@ -173,6 +92,8 @@ export default function Home() {
             name="tel"
             autoComplete="tel"
           />
+
+          {/* Address */}
           <TextField
             margin="normal"
             required
@@ -182,6 +103,8 @@ export default function Home() {
             name="address"
             autoComplete="street-address"
           />
+
+          {/* Confirm Email */}
           <TextField
             margin="normal"
             required
@@ -191,6 +114,8 @@ export default function Home() {
             name="email2"
             autoComplete="email"
           />
+
+          {/* Confirm Password */}
           <TextField
             margin="normal"
             required
@@ -198,28 +123,27 @@ export default function Home() {
             id="pass2"
             label="Confirm Password"
             name="pass2"
+            type="password"
             autoComplete="new-password"
           />
 
-
+          {/* Remember Me Checkbox */}
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
+
+          {/* Submit Button */}
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Sign Up
           </Button>
         </Box>
       </Box>
     </Container>
   );
 }
-
-
-
-
